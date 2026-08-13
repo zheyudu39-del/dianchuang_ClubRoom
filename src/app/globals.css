@@ -1,26 +1,137 @@
 @import "tailwindcss";
 
+/* ============================================
+   🎨 浅色极简主题变量
+   黑白灰 + 靛蓝品牌色
+   ============================================ */
 :root {
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: #18181b;
+  --muted: #f4f4f5;
+  --muted-foreground: #71717a;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --border: #e4e4e7;
+  --primary: #4f46e5;
+  --primary-foreground: #ffffff;
+  --secondary: #6366f1;
+  --accent: #4f46e5;
+  --ring: #4f46e5;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-accent: var(--accent);
+  --color-ring: var(--ring);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ============================================
+   全局基础
+   ============================================ */
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+}
+
+/* 自定义滚动条（浅色） */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #fafafa;
+}
+::-webkit-scrollbar-thumb {
+  background: #d4d4d8;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a1a1aa;
+}
+
+/* 选中文本 */
+::selection {
+  background: rgba(79, 70, 229, 0.15);
+  color: #18181b;
+}
+
+/* ============================================
+   工具类（极简浅色版，兼容旧引用）
+   ============================================ */
+.text-gradient {
+  color: var(--primary);
+}
+
+.text-gradient-cyan {
+  color: var(--primary);
+}
+
+.bg-grid {
+  background-image:
+    linear-gradient(to right, rgba(24, 24, 27, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(24, 24, 27, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+
+.bg-dot {
+  background-image: radial-gradient(rgba(24, 24, 27, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(24, 24, 27, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(24, 24, 27, 0.08);
+}
+
+.glow-cyan {
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.15), 0 12px 32px rgba(79, 70, 229, 0.12);
+}
+
+.glow-purple {
+  box-shadow: 0 12px 32px rgba(24, 24, 27, 0.08);
+}
+
+.hover-glow {
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+.hover-glow:hover {
+  box-shadow: 0 16px 40px -16px rgba(24, 24, 27, 0.15);
+  transform: translateY(-2px);
+}
+
+/* 卡片：白底 + 细边框 + 大圆角 */
+.gradient-border {
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 1rem;
 }
