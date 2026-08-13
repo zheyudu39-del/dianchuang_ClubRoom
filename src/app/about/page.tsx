@@ -33,16 +33,28 @@ export default function AboutPage() {
           </h1>
           <p className="mt-6 text-lg text-zinc-500 max-w-2xl mx-auto leading-relaxed">
             一群热爱技术与创意的大学生，因为相信「代码可以改变世界」而聚在一起。
-            五年时间，从 3 人小组到 48 人团队，我们用作品说话。
+            11年时间，从 3 人小组到 20+ 人团队，我们用作品说话。
           </p>
         </motion.div>
 
         {/* 核心理念 */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-24">
           {[
-            { title: "MISSION", zh: "我们的使命", desc: "用技术赋能创意，让每一位成员都能做出有影响力的作品。" },
-            { title: "VISION", zh: "我们的愿景", desc: "成为中国最具影响力的高校技术工作室，培养下一代产品创造者。" },
-            { title: "VALUES", zh: "我们的价值观", desc: "开放、协作、极致、创新。我们相信开源精神与极客文化。" },
+            {
+              title: "MISSION",
+              zh: "我们的使命",
+              desc: "用技术赋能创意，让每一位成员都能做出有影响力的作品。",
+            },
+            {
+              title: "VISION",
+              zh: "我们的愿景",
+              desc: "成为中国最具影响力的高校技术工作室，培养下一代产品创造者。",
+            },
+            {
+              title: "VALUES",
+              zh: "我们的价值观",
+              desc: "开放、协作、极致、创新。我们相信开源精神与极客文化。",
+            },
           ].map((item, i) => (
             <motion.div
               key={item.title}
@@ -52,9 +64,15 @@ export default function AboutPage() {
               transition={{ delay: i * 0.08 }}
               className="rounded-2xl border border-zinc-200 bg-white p-8"
             >
-              <div className="text-xs font-mono text-indigo-600 tracking-[0.2em]">{item.title}</div>
-              <h3 className="mt-3 text-xl font-semibold text-zinc-900">{item.zh}</h3>
-              <p className="mt-3 text-sm text-zinc-500 leading-relaxed">{item.desc}</p>
+              <div className="text-xs font-mono text-indigo-600 tracking-[0.2em]">
+                {item.title}
+              </div>
+              <h3 className="mt-3 text-xl font-semibold text-zinc-900">
+                {item.zh}
+              </h3>
+              <p className="mt-3 text-sm text-zinc-500 leading-relaxed">
+                {item.desc}
+              </p>
             </motion.div>
           ))}
         </div>
@@ -94,9 +112,15 @@ export default function AboutPage() {
                       i % 2 === 0 ? "text-right" : "text-left"
                     }`}
                   >
-                    <div className="text-2xl font-bold tracking-tight text-indigo-600">{item.year}</div>
-                    <h3 className="mt-1.5 text-lg font-semibold text-zinc-900">{item.title}</h3>
-                    <p className="mt-1.5 text-sm text-zinc-500 leading-relaxed">{item.description}</p>
+                    <div className="text-2xl font-bold tracking-tight text-indigo-600">
+                      {item.year}
+                    </div>
+                    <h3 className="mt-1.5 text-lg font-semibold text-zinc-900">
+                      {item.title}
+                    </h3>
+                    <p className="mt-1.5 text-sm text-zinc-500 leading-relaxed">
+                      {item.description}
+                    </p>
                   </div>
                 </div>
                 {/* 圆点 */}

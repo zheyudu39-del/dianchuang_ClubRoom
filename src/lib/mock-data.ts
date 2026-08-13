@@ -381,7 +381,7 @@ export const faqs = [
 export const stats = [
   {
     "label": "活跃成员",
-    "value": 48,
+    "value": 20,
     "suffix": "+"
   },
   {
