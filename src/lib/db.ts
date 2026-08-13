@@ -14,7 +14,13 @@ if (!fs.existsSync(dataDir)) {
 }
 
 export const db = new Database(path.join(dataDir, "nexus.db"));
-db.pragma("journal_mode = WAL");
+// 等待锁而不是立即报错(next build 会并行打开数据库,撞锁时排队等待)
+db.pragma("busy_timeout = 5000");
+try {
+  db.pragma("journal_mode = WAL");
+} catch {
+  // 并行构建/多进程初始化时 WAL 可能短暂被锁,忽略即可(只读不影响)
+}
 
 // ============ 建表 ============
 db.exec(`
