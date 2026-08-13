@@ -11,9 +11,11 @@ import type { SessionUser } from "@/lib/auth";
 const navItems = [
   { href: "/", label: "首页" },
   { href: "/about", label: "关于" },
+  { href: "/honors", label: "荣誉" },
   { href: "/members", label: "团队" },
   { href: "/works", label: "作品" },
   { href: "/join", label: "纳新" },
+  { href: "/messages", label: "我的消息" },
   { href: "/contact", label: "联系" },
 ];
 

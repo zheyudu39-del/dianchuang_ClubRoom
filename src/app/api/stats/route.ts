@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getStats, replaceStats } from "@/lib/db";
+
+import { getMockStats } from "@/lib/mock-api";
+import { writeMockData } from "@/lib/mock-store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +16,7 @@ const statsSchema = z.array(statItemSchema).min(1, "至少一项统计").max(8, 
 
 export async function GET() {
   try {
-    return NextResponse.json(getStats());
+    return NextResponse.json(getMockStats());
   } catch {
     return NextResponse.json({ error: "获取统计数据失败" }, { status: 500 });
   }
@@ -30,7 +32,7 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
-    replaceStats(parsed.data);
+    writeMockData({ stats: parsed.data as unknown[] });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "更新失败" }, { status: 500 });

@@ -94,6 +94,8 @@ CREATE TABLE IF NOT EXISTS applications (
   self_intro  TEXT,
   experience  TEXT,
   status      TEXT NOT NULL DEFAULT 'pending',
+  admin_reply TEXT,
+  replied_at  TEXT,
   created_at  TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
@@ -103,6 +105,8 @@ CREATE TABLE IF NOT EXISTS messages (
   email      TEXT NOT NULL,
   topic      TEXT,
   content    TEXT NOT NULL,
+  admin_reply TEXT,
+  replied_at  TEXT,
   created_at TEXT NOT NULL DEFAULT (datetime('now', 'localtime'))
 );
 
@@ -124,6 +128,13 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token);
 `);
+
+// ---------- 迁移:为旧库补充管理员回复字段(幂等) ----------
+for (const t of ["applications", "messages"]) {
+  const cols = (db.prepare(`PRAGMA table_info(${t})`).all() as any[]).map((c) => c.name);
+  if (!cols.includes("admin_reply")) db.exec(`ALTER TABLE ${t} ADD COLUMN admin_reply TEXT`);
+  if (!cols.includes("replied_at")) db.exec(`ALTER TABLE ${t} ADD COLUMN replied_at TEXT`);
+}
 
 // ============ 类型 ============
 export interface Department {
@@ -321,6 +332,75 @@ export function createMessage(input: MessageInput) {
   return Number(info.lastInsertRowid);
 }
 
+// ============ 留言管理 + 回复 ============
+export interface MessageRow {
+  id: number;
+  name: string;
+  email: string;
+  topic: string | null;
+  content: string;
+  adminReply: string | null;
+  repliedAt: string | null;
+  createdAt: string;
+}
+
+export function getMessages(): MessageRow[] {
+  const rows = db.prepare("SELECT * FROM messages ORDER BY id DESC").all() as any[];
+  return rows.map((r) => ({
+    id: r.id,
+    name: r.name,
+    email: r.email,
+    topic: r.topic ?? null,
+    content: r.content,
+    adminReply: r.admin_reply ?? null,
+    repliedAt: r.replied_at ?? null,
+    createdAt: r.created_at,
+  }));
+}
+
+export function replyMessage(id: number, reply: string) {
+  db.prepare(
+    "UPDATE messages SET admin_reply = ?, replied_at = datetime('now', 'localtime') WHERE id = ?"
+  ).run(reply, id);
+}
+
+/** 前台消息模块:按邮箱返回该用户收到的所有管理员回复(报名 + 留言) */
+export function getUserMessages(email: string) {
+  const applications = db
+    .prepare(
+      `SELECT id, name, department, status, self_intro, admin_reply, replied_at, created_at
+       FROM applications WHERE email = ? AND admin_reply IS NOT NULL AND admin_reply != '' ORDER BY id DESC`
+    )
+    .all(email) as any[];
+  const messages = db
+    .prepare(
+      `SELECT id, name, topic, content, admin_reply, replied_at, created_at
+       FROM messages WHERE email = ? AND admin_reply IS NOT NULL AND admin_reply != '' ORDER BY id DESC`
+    )
+    .all(email) as any[];
+  return {
+    applications: applications.map((r) => ({
+      id: r.id,
+      name: r.name,
+      department: r.department,
+      status: r.status,
+      selfIntro: r.self_intro,
+      adminReply: r.admin_reply,
+      repliedAt: r.replied_at,
+      createdAt: r.created_at,
+    })),
+    messages: messages.map((r) => ({
+      id: r.id,
+      name: r.name,
+      topic: r.topic,
+      content: r.content,
+      adminReply: r.admin_reply,
+      repliedAt: r.replied_at,
+      createdAt: r.created_at,
+    })),
+  };
+}
+
 // ============ 访问统计 ============
 db.exec(`
 CREATE TABLE IF NOT EXISTS page_views (
@@ -369,6 +449,8 @@ export interface ApplicationRow {
   selfIntro: string | null;
   experience: string | null;
   status: string;
+  adminReply: string | null;
+  repliedAt: string | null;
   createdAt: string;
 }
 
@@ -390,12 +472,20 @@ export function getApplications(): ApplicationRow[] {
     selfIntro: r.self_intro ?? null,
     experience: r.experience ?? null,
     status: r.status,
+    adminReply: r.admin_reply ?? null,
+    repliedAt: r.replied_at ?? null,
     createdAt: r.created_at,
   }));
 }
 
 export function updateApplicationStatus(id: number, status: string) {
   db.prepare("UPDATE applications SET status = ? WHERE id = ?").run(status, id);
+}
+
+export function replyApplication(id: number, reply: string) {
+  db.prepare(
+    "UPDATE applications SET admin_reply = ?, replied_at = datetime('now', 'localtime') WHERE id = ?"
+  ).run(reply, id);
 }
 
 // ============ 成员管理 CRUD ============

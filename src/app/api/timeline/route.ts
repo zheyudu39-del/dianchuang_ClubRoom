@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { getTimeline } from "@/lib/db";
+import { getMockTimeline } from "@/lib/mock-api";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
   try {
-    return NextResponse.json(getTimeline());
+    return NextResponse.json(getMockTimeline());
   } catch {
-    return NextResponse.json({ error: "获取发展历程失败" }, { status: 500 });
+    return NextResponse.json({ error: "获取时间线失败" }, { status: 500 });
   }
 }

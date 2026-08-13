@@ -6,7 +6,16 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Check, ChevronRight, ChevronLeft, User, Code, FileText, CheckCircle2, Sparkles } from "lucide-react";
+import {
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  User,
+  Code,
+  FileText,
+  CheckCircle2,
+  Sparkles,
+} from "lucide-react";
 import { departments as mockDepartments } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import type { Department, Faq } from "@/lib/db";
@@ -69,8 +78,8 @@ export default function JoinPage() {
       step === 1
         ? ["name", "studentId", "email", "phone", "grade", "major"]
         : step === 2
-        ? ["department", "skills"]
-        : [];
+          ? ["department", "skills"]
+          : [];
     const valid = await trigger(fields as (keyof ApplicationForm)[]);
     if (valid) setStep((s) => s + 1);
   };
@@ -114,7 +123,9 @@ export default function JoinPage() {
           >
             <CheckCircle2 className="w-10 h-10 text-white" />
           </motion.div>
-          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-3">报名提交成功！</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-zinc-900 mb-3">
+            报名提交成功！
+          </h1>
           <p className="text-zinc-500 mb-2">
             我们已收到你的报名信息，招新组会在 3 个工作日内联系你。
           </p>
@@ -153,7 +164,7 @@ export default function JoinPage() {
         >
           <p className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs text-zinc-500">
             <Sparkles className="w-3 h-3 text-indigo-600" />
-            2026 春季纳新 · 限额 20 人
+            2026 秋季纳新 · 限额 3 人
           </p>
           <h1 className="mt-6 text-4xl md:text-6xl font-bold tracking-tight text-zinc-900">
             加入 <span className="text-indigo-600">典创</span>
@@ -179,17 +190,28 @@ export default function JoinPage() {
                     step > s.id
                       ? "bg-indigo-600 text-white"
                       : step === s.id
-                      ? "border-2 border-indigo-600 bg-white text-indigo-600"
-                      : "bg-zinc-100 text-zinc-400"
+                        ? "border-2 border-indigo-600 bg-white text-indigo-600"
+                        : "bg-zinc-100 text-zinc-400",
                   )}
                 >
-                  {step > s.id ? <Check className="w-5 h-5" /> : <s.icon className="w-5 h-5" strokeWidth={1.75} />}
+                  {step > s.id ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <s.icon className="w-5 h-5" strokeWidth={1.75} />
+                  )}
                 </motion.div>
                 <div className="mt-2.5 text-center">
-                  <div className={cn("text-xs font-medium", step >= s.id ? "text-zinc-900" : "text-zinc-400")}>
+                  <div
+                    className={cn(
+                      "text-xs font-medium",
+                      step >= s.id ? "text-zinc-900" : "text-zinc-400",
+                    )}
+                  >
                     {s.title}
                   </div>
-                  <div className="text-[10px] text-zinc-400 hidden sm:block">{s.desc}</div>
+                  <div className="text-[10px] text-zinc-400 hidden sm:block">
+                    {s.desc}
+                  </div>
                 </div>
               </div>
               {i < steps.length - 1 && (
@@ -220,16 +242,33 @@ export default function JoinPage() {
                 >
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Field label="姓名" error={errors.name?.message}>
-                      <input {...register("name")} placeholder="请输入你的姓名" className={inputClass} />
+                      <input
+                        {...register("name")}
+                        placeholder="请输入你的姓名"
+                        className={inputClass}
+                      />
                     </Field>
                     <Field label="学号" error={errors.studentId?.message}>
-                      <input {...register("studentId")} placeholder="例如：2023001001" className={inputClass} />
+                      <input
+                        {...register("studentId")}
+                        placeholder="例如：20240101001"
+                        className={inputClass}
+                      />
                     </Field>
                     <Field label="邮箱" error={errors.email?.message}>
-                      <input {...register("email")} type="email" placeholder="you@example.com" className={inputClass} />
+                      <input
+                        {...register("email")}
+                        type="email"
+                        placeholder="you@example.com"
+                        className={inputClass}
+                      />
                     </Field>
                     <Field label="手机号" error={errors.phone?.message}>
-                      <input {...register("phone")} placeholder="11 位手机号" className={inputClass} />
+                      <input
+                        {...register("phone")}
+                        placeholder="11 位手机号"
+                        className={inputClass}
+                      />
                     </Field>
                     <Field label="年级" error={errors.grade?.message}>
                       <select {...register("grade")} className={inputClass}>
@@ -243,7 +282,11 @@ export default function JoinPage() {
                       </select>
                     </Field>
                     <Field label="专业" error={errors.major?.message}>
-                      <input {...register("major")} placeholder="例如：计算机科学与技术" className={inputClass} />
+                      <input
+                        {...register("major")}
+                        placeholder="例如：计算机科学与技术"
+                        className={inputClass}
+                      />
                     </Field>
                   </div>
                 </motion.div>
@@ -266,7 +309,7 @@ export default function JoinPage() {
                             "relative flex flex-col p-3 rounded-lg border cursor-pointer transition",
                             getValues("department") === dept.id
                               ? "border-indigo-600 bg-indigo-50"
-                              : "border-zinc-200 bg-zinc-50 hover:border-zinc-400"
+                              : "border-zinc-200 bg-zinc-50 hover:border-zinc-400",
                           )}
                         >
                           <input
@@ -275,7 +318,9 @@ export default function JoinPage() {
                             {...register("department")}
                             className="sr-only"
                           />
-                          <span className="text-sm font-medium text-zinc-900">{dept.name}</span>
+                          <span className="text-sm font-medium text-zinc-900">
+                            {dept.name}
+                          </span>
                           <span className="text-[10px] text-zinc-500 mt-1 line-clamp-1">
                             {dept.skills.slice(0, 2).join(" / ")}
                           </span>
@@ -287,7 +332,11 @@ export default function JoinPage() {
                     </div>
                   </Field>
 
-                  <Field label="技能栈" error={errors.skills?.message} hint="多个技能用逗号分隔">
+                  <Field
+                    label="技能栈"
+                    error={errors.skills?.message}
+                    hint="多个技能用逗号分隔"
+                  >
                     <input
                       {...register("skills")}
                       placeholder="例如：React, TypeScript, Node.js"
@@ -295,7 +344,10 @@ export default function JoinPage() {
                     />
                   </Field>
 
-                  <Field label="作品集链接（选填）" error={errors.portfolio?.message}>
+                  <Field
+                    label="作品集链接（选填）"
+                    error={errors.portfolio?.message}
+                  >
                     <input
                       {...register("portfolio")}
                       placeholder="GitHub / 个人网站 / 作品链接"
@@ -313,7 +365,11 @@ export default function JoinPage() {
                   exit={{ opacity: 0, x: -20 }}
                   className="space-y-5"
                 >
-                  <Field label="自我介绍" error={errors.selfIntro?.message} hint="告诉我们你的故事，为什么想加入 典创">
+                  <Field
+                    label="自我介绍"
+                    error={errors.selfIntro?.message}
+                    hint="告诉我们你的故事，为什么想加入 典创"
+                  >
                     <textarea
                       {...register("selfIntro")}
                       rows={6}
@@ -322,7 +378,10 @@ export default function JoinPage() {
                     />
                   </Field>
 
-                  <Field label="项目经验（选填）" error={errors.experience?.message}>
+                  <Field
+                    label="项目经验（选填）"
+                    error={errors.experience?.message}
+                  >
                     <textarea
                       {...register("experience")}
                       rows={4}
@@ -333,7 +392,10 @@ export default function JoinPage() {
 
                   <div className="rounded-lg bg-indigo-50 border border-indigo-100 p-4 text-sm text-zinc-600">
                     <p className="font-medium text-indigo-700 mb-1">温馨提示</p>
-                    <p>提交后，招新组会在 3 个工作日内通过邮件联系你。请关注你的邮箱通知。</p>
+                    <p>
+                      提交后，招新组会在 3
+                      个工作日内通过邮件联系你。请关注你的邮箱通知。
+                    </p>
                   </div>
                 </motion.div>
               )}
@@ -373,9 +435,9 @@ export default function JoinPage() {
                     disabled={submitting}
                     className="flex items-center gap-2 px-8 py-2.5 rounded-full bg-indigo-600 text-sm font-medium text-white hover:bg-indigo-700 transition disabled:opacity-60 disabled:cursor-not-allowed"
                   >
-                  {submitting ? "提交中..." : "提交报名"}
-                  <Check className="w-4 h-4" />
-                </button>
+                    {submitting ? "提交中..." : "提交报名"}
+                    <Check className="w-4 h-4" />
+                  </button>
                 </div>
               )}
             </div>
@@ -401,7 +463,9 @@ export default function JoinPage() {
                   {faq.question}
                   <ChevronRight className="w-4 h-4 text-zinc-400 transition-transform group-open:rotate-90" />
                 </summary>
-                <p className="mt-3 text-sm text-zinc-500 leading-relaxed">{faq.answer}</p>
+                <p className="mt-3 text-sm text-zinc-500 leading-relaxed">
+                  {faq.answer}
+                </p>
               </motion.details>
             ))}
           </div>

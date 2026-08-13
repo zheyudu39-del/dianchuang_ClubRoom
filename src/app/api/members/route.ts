@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getMembers, createMember, updateMember, deleteMember } from "@/lib/db";
+import { members } from "@/lib/mock-data";
+import { getMockMembers } from "@/lib/mock-api";
+import { writeMockData } from "@/lib/mock-store";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +19,8 @@ const memberSchema = z.object({
 export async function GET(req: NextRequest) {
   try {
     const department = req.nextUrl.searchParams.get("department");
-    const members = getMembers();
-    const filtered = department
-      ? members.filter((m) => m.department === department)
-      : members;
+    const list = getMockMembers();
+    const filtered = department ? list.filter((m) => m.department === department) : list;
     return NextResponse.json(filtered);
   } catch {
     return NextResponse.json({ error: "获取成员列表失败" }, { status: 500 });
@@ -37,7 +37,19 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    const id = createMember(parsed.data);
+    const id = crypto.randomUUID().slice(0, 8);
+    const next = [
+      ...members,
+      {
+        ...parsed.data,
+        id,
+        avatar: null,
+        joinedAt: new Date().toISOString().slice(0, 7),
+        isActive: true,
+        order: members.length + 1,
+      },
+    ];
+    writeMockData({ members: next as unknown[] });
     return NextResponse.json({ success: true, id }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "创建失败" }, { status: 500 });
@@ -56,7 +68,8 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
-    updateMember(id, parsed.data);
+    const next = members.map((m) => (m.id === id ? { ...m, ...parsed.data, id } : m));
+    writeMockData({ members: next as unknown[] });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
@@ -67,7 +80,8 @@ export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");
     if (!id) return NextResponse.json({ error: "缺少 id" }, { status: 400 });
-    deleteMember(id);
+    const next = members.filter((m) => m.id !== id);
+    writeMockData({ members: next as unknown[] });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "删除失败" }, { status: 500 });

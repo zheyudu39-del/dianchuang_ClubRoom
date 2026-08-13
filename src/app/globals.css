@@ -135,3 +135,17 @@ body {
   border: 1px solid var(--border);
   border-radius: 1rem;
 }
+
+/* ============ 荣誉墙无缝滚动 ============ */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.animate-marquee {
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+.marquee-paused:hover .animate-marquee,
+.animate-marquee:hover {
+  animation-play-state: paused;
+}

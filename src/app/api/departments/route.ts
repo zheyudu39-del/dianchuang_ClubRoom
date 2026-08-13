@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getDepartments, createDepartment, updateDepartment, deleteDepartment } from "@/lib/db";
+import { departments } from "@/lib/mock-data";
+import { getMockDepartments } from "@/lib/mock-api";
+import { writeMockData } from "@/lib/mock-store";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +16,7 @@ const deptSchema = z.object({
 
 export async function GET() {
   try {
-    return NextResponse.json(getDepartments());
+    return NextResponse.json(getMockDepartments());
   } catch {
     return NextResponse.json({ error: "获取部门列表失败" }, { status: 500 });
   }
@@ -30,7 +32,11 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    createDepartment(parsed.data);
+    const next = [
+      ...departments,
+      { id: parsed.data.id, name: parsed.data.name, icon: parsed.data.icon, color: "", desc: parsed.data.description, skills: parsed.data.skills },
+    ];
+    writeMockData({ departments: next as unknown[] });
     return NextResponse.json({ success: true }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "创建失败（可能 id 已存在）" }, { status: 500 });
@@ -49,7 +55,12 @@ export async function PUT(req: NextRequest) {
         { status: 400 }
       );
     }
-    updateDepartment(id, parsed.data);
+    const next = departments.map((d) =>
+      d.id === id
+        ? { ...d, name: parsed.data.name, icon: parsed.data.icon, desc: parsed.data.description, skills: parsed.data.skills }
+        : d
+    );
+    writeMockData({ departments: next as unknown[] });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
@@ -60,7 +71,8 @@ export async function DELETE(req: NextRequest) {
   try {
     const id = req.nextUrl.searchParams.get("id");
     if (!id) return NextResponse.json({ error: "缺少 id" }, { status: 400 });
-    deleteDepartment(id);
+    const next = departments.filter((d) => d.id !== id);
+    writeMockData({ departments: next as unknown[] });
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "删除失败" }, { status: 500 });

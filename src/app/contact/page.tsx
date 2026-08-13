@@ -2,7 +2,14 @@
 
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { Mail, MapPin, MessageCircle, Send, Code2, Sparkles } from "lucide-react";
+import {
+  Mail,
+  MapPin,
+  MessageCircle,
+  Send,
+  Code2,
+  Sparkles,
+} from "lucide-react";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
@@ -66,10 +73,14 @@ export default function ContactPage() {
           {/* 联系信息 */}
           <div className="space-y-4">
             {[
-              { icon: Mail, title: "邮箱", value: "contact@dianchuang.studio" },
-              { icon: MessageCircle, title: "QQ 群", value: "123 456 789" },
-              { icon: Code2, title: "GitHub", value: "@nexus-studio" },
-              { icon: MapPin, title: "工作室地址", value: "计算机学院 A 栋 305" },
+              { icon: Mail, title: "邮箱", value: "hsdmwdzy@163.com" },
+              { icon: MessageCircle, title: "QQ 群", value: "1049447556" },
+              { icon: Code2, title: "GitHub", value: "None" },
+              {
+                icon: MapPin,
+                title: "工作室地址",
+                value: "喀什大学东城校区新工科楼",
+              },
             ].map((item, i) => (
               <motion.div
                 key={item.title}
@@ -83,8 +94,12 @@ export default function ContactPage() {
                   <item.icon className="w-5 h-5" strokeWidth={1.75} />
                 </div>
                 <div>
-                  <div className="text-xs uppercase tracking-wider text-zinc-400">{item.title}</div>
-                  <div className="text-base font-medium text-zinc-900 mt-0.5">{item.value}</div>
+                  <div className="text-xs uppercase tracking-wider text-zinc-400">
+                    {item.title}
+                  </div>
+                  <div className="text-base font-medium text-zinc-900 mt-0.5">
+                    {item.value}
+                  </div>
                 </div>
               </motion.div>
             ))}
@@ -98,11 +113,18 @@ export default function ContactPage() {
             >
               <div className="flex items-center gap-2 text-indigo-700 text-sm font-medium mb-2">
                 <Sparkles className="w-4 h-4" />
-                招新 & 合作
+                招新 & 交流
               </div>
               <p className="text-sm text-zinc-600 leading-relaxed">
-                招新相关问题请优先使用 <a href="/join" className="text-indigo-600 hover:underline">报名表</a>，
-                商业合作请发邮件至 <span className="text-indigo-600 font-medium">bd@dianchuang.studio</span>。
+                招新相关问题请优先使用{" "}
+                <a href="/join" className="text-indigo-600 hover:underline">
+                  报名表
+                </a>
+                ， 技术交流请发邮件至{" "}
+                <span className="text-indigo-600 font-medium">
+                  hsdmwdzy@163.com
+                </span>
+                。
               </p>
             </motion.div>
           </div>
@@ -119,7 +141,9 @@ export default function ContactPage() {
                 <div className="inline-flex w-16 h-16 rounded-full bg-indigo-600 items-center justify-center mb-4">
                   <Send className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-900 mb-2">消息已发送！</h3>
+                <h3 className="text-xl font-bold text-zinc-900 mb-2">
+                  消息已发送！
+                </h3>
                 <p className="text-sm text-zinc-500">我们会尽快回复你。</p>
                 <button
                   onClick={() => setSubmitted(false)}
@@ -130,7 +154,9 @@ export default function ContactPage() {
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
-                <h3 className="text-xl font-bold text-zinc-900 mb-4">给我们留言</h3>
+                <h3 className="text-xl font-bold text-zinc-900 mb-4">
+                  给我们留言
+                </h3>
                 <input
                   required
                   name="name"
@@ -150,8 +176,9 @@ export default function ContactPage() {
                   defaultValue=""
                   className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 bg-white text-sm text-zinc-900 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
                 >
-                  <option value="" disabled>请选择话题</option>
-                  <option>商务合作</option>
+                  <option value="" disabled>
+                    请选择话题
+                  </option>
                   <option>招新咨询</option>
                   <option>技术交流</option>
                   <option>内推机会</option>

@@ -2,11 +2,11 @@ import { HeroSection } from "@/components/home/hero-section";
 import { StatsSection } from "@/components/home/stats-section";
 import { DepartmentsSection } from "@/components/home/departments-section";
 import { CtaSection } from "@/components/home/cta-section";
-import { getStats, getDepartments } from "@/lib/db";
+import { getMockStats, getMockDepartments } from "@/lib/mock-api";
 
 export default function Home() {
-  const stats = getStats();
-  const departments = getDepartments();
+  const stats = getMockStats();
+  const departments = getMockDepartments();
 
   return (
     <>

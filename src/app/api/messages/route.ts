@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { createMessage, db } from "@/lib/db";
+import { createMessage, getMessages, replyMessage } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -13,10 +13,7 @@ const messageSchema = z.object({
 
 export async function GET() {
   try {
-    const rows = db
-      .prepare("SELECT * FROM messages ORDER BY id DESC LIMIT 100")
-      .all();
-    return NextResponse.json(rows);
+    return NextResponse.json(getMessages());
   } catch {
     return NextResponse.json({ error: "获取留言列表失败" }, { status: 500 });
   }
@@ -35,5 +32,27 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, id }, { status: 201 });
   } catch {
     return NextResponse.json({ error: "服务器内部错误" }, { status: 500 });
+  }
+}
+
+const replySchema = z.object({
+  id: z.number().int().positive(),
+  reply: z.string().min(1, "回复内容不能为空").max(2000, "回复最多 2000 字"),
+});
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = replySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "参数校验失败" },
+        { status: 400 }
+      );
+    }
+    replyMessage(parsed.data.id, parsed.data.reply);
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "回复失败" }, { status: 500 });
   }
 }

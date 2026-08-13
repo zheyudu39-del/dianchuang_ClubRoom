@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { getApplications, createApplication, updateApplicationStatus } from "@/lib/db";
+import { getApplications, createApplication, updateApplicationStatus, replyApplication } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
@@ -63,5 +63,27 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch {
     return NextResponse.json({ error: "更新失败" }, { status: 500 });
+  }
+}
+
+const replySchema = z.object({
+  id: z.number().int().positive(),
+  reply: z.string().min(1, "回复内容不能为空").max(2000, "回复最多 2000 字"),
+});
+
+export async function PUT(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const parsed = replySchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "参数校验失败" },
+        { status: 400 }
+      );
+    }
+    replyApplication(parsed.data.id, parsed.data.reply);
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json({ error: "回复失败" }, { status: 500 });
   }
 }

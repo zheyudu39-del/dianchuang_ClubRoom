@@ -145,16 +145,16 @@ members.forEach((m, i) => insertMember.run({ ...m, skills: JSON.stringify(m.skil
 
 // ---------- 作品 ----------
 const works = [
-  { id: "1", title: "Nimbus 云笔记", description: "基于 Next.js + Go 的全栈云笔记应用，支持 Markdown、AI 总结、协同编辑。已上线运营 1 年。", techStack: ["Next.js", "TypeScript", "Go", "PostgreSQL"], category: "Web 应用", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "4"] },
-  { id: "2", title: "Echo 智能客服", description: "基于 RAG 架构的智能客服系统，毫秒级响应，准确率 95%+。已服务 3 家企业客户。", techStack: ["Python", "机器学习", "FastAPI", "Milvus"], category: "AI 产品", githubUrl: "#", demoUrl: "#", teamMembers: ["2", "7"] },
-  { id: "3", title: "Pulse 心率监测", description: "Flutter 移动端应用，结合 Android/iOS 健康能力，实时监测心率并生成健康报告。", techStack: ["Flutter", "Dart", "Kotlin"], category: "移动应用", githubUrl: "#", demoUrl: "#", teamMembers: ["5"] },
-  { id: "4", title: "Aurora 校园社交", description: "面向大学生的兴趣社交平台，话题、活动、二手交易一站式。DAU 突破 5000。", techStack: ["Vue 3", "TypeScript", "Java", "WebSocket"], category: "Web 应用", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "8", "6"] },
-  { id: "5", title: "Vivid 设计系统", description: "面向中后台的 React 组件库，50+ 高质量组件，支持主题定制。GitHub 600+ star。", techStack: ["React", "TypeScript", "Storybook"], category: "开源项目", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "3"] },
-  { id: "6", title: "Mirage 图像引擎", description: "基于 C++ 与深度学习的高性能图像处理引擎，支持实时风格迁移与图像生成。", techStack: ["C++", "Python", "深度学习"], category: "AI 产品", githubUrl: "#", demoUrl: "#", teamMembers: ["2", "6"] },
+  { id: "1", title: "Nimbus 云笔记", description: "基于 Next.js 15 + PostgreSQL 的全栈云笔记应用，支持 Markdown、AI 总结、协同编辑。已上线运营 1 年。", cover: "/works/nimbus.svg", techStack: ["Next.js", "PostgreSQL", "Prisma", "OpenAI"], category: "Web 应用", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "4"] },
+  { id: "2", title: "Echo 智能客服", description: "基于 RAG 架构的智能客服系统，毫秒级响应，准确率 95%+。已服务 3 家企业客户。", cover: "/works/echo.svg", techStack: ["Python", "FastAPI", "LangChain", "Milvus"], category: "AI 产品", githubUrl: "#", demoUrl: "#", teamMembers: ["2", "7"] },
+  { id: "3", title: "Pulse 心率监测", description: "Flutter 移动端应用，结合 Apple HealthKit，实时监测心率并生成健康报告。", cover: "/works/pulse.svg", techStack: ["Flutter", "Dart", "HealthKit"], category: "移动应用", githubUrl: "#", demoUrl: "#", teamMembers: ["5"] },
+  { id: "4", title: "Aurora 校园社交", description: "面向大学生的兴趣社交平台，话题、活动、二手交易一站式。DAU 突破 5000。", cover: "/works/aurora.svg", techStack: ["Vue 3", "Go", "Redis", "WebSocket"], category: "Web 应用", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "8", "6"] },
+  { id: "5", title: "Vivid 设计系统", description: "面向中后台的 React 组件库，50+ 高质量组件，支持主题定制。GitHub 600+ star。", cover: "/works/vivid.svg", techStack: ["React", "TypeScript", "Storybook"], category: "开源项目", githubUrl: "#", demoUrl: "#", teamMembers: ["1", "3"] },
+  { id: "6", title: "Mirage 图像生成", description: "基于 Stable Diffusion 的二次元图像生成 Web 应用，文生图、图生图双模式。", cover: "/works/mirage.svg", techStack: ["Next.js", "Python", "Stable Diffusion"], category: "AI 产品", githubUrl: "#", demoUrl: "#", teamMembers: ["2", "7"] },
 ];
 const insertWork = db.prepare(
-  `INSERT INTO works (id, title, description, tech_stack, category, github_url, demo_url, team_members, is_published)
-   VALUES (@id, @title, @description, @techStack, @category, @githubUrl, @demoUrl, @teamMembers, 1)`
+  `INSERT INTO works (id, title, description, cover, tech_stack, category, github_url, demo_url, team_members, is_published)
+   VALUES (@id, @title, @description, @cover, @techStack, @category, @githubUrl, @demoUrl, @teamMembers, 1)`
 );
 works.forEach((w) =>
   insertWork.run({
@@ -166,11 +166,11 @@ works.forEach((w) =>
 
 // ---------- 时间线 ----------
 const timeline = [
-  { year: "2021", title: "工作室成立", description: "由 3 名计算机系同学发起，最初定位为前端技术小组。" },
+  { year: "2015", title: "典创工作室成立", description: "由 3 名计算机系同学发起，最初定位为前端技术小组。" },
   { year: "2022", title: "首个产品上线", description: "校园失物招领系统「FoundYou」正式上线，注册用户突破 3000。" },
-  { year: "2023", title: "部门扩展", description: "新增 AI、设计、产品三个部门，团队规模达到 15 人。" },
-  { year: "2024", title: "省赛金奖", description: "作品「Echo 智能客服」获得互联网+ 大学生创新创业大赛省赛金奖。" },
-  { year: "2025", title: "商业化起步", description: "开始承接企业外包项目，工作室年营收突破 30 万元。" },
+  { year: "2023", title: "工作室扩招", description: "多位优秀的团队成员加入工作室，团队规模达到 15 人。" },
+  { year: "2024", title: "国家级A类赛事", description: "工作室成员全员荣获多项A类赛事的省级以上奖项。" },
+  { year: "2025末", title: "首位学长保研", description: "毕金成学长以专业第一的优异成绩保研至苏州大学。" },
   { year: "2026", title: "全新官网", description: "你正在浏览的官网 v2.0 正式上线！欢迎加入我们。" },
 ];
 const insertTimeline = db.prepare(
@@ -182,9 +182,9 @@ timeline.forEach((t, i) => insertTimeline.run({ ...t, sort_order: i }));
 const faqs = [
   { q: "我没有太多经验，可以加入吗？", a: "当然可以！我们更看重你的学习热情和成长潜力。每位新成员都会有学长学姐 1v1 带教。" },
   { q: "工作室有考核吗？", a: "我们有月度项目考核，但氛围轻松，目的是互相督促、共同成长。" },
-  { q: "加入后需要投入多少时间？", a: "建议每周至少 8 小时，包括例会、项目开发和内部分享。" },
-  { q: "有实习或工作内推机会吗？", a: "有！我们与多家互联网公司有合作关系，优秀成员可获得内推机会。" },
-  { q: "工作室有报酬吗？", a: "商业项目会有项目分成，同时提供服务器、技术书籍等资源支持。" },
+  { q: "加入工作室能学习到什么？", a: "我们工作室是以技术为核心的成员，主要是寻求渴望学习技术的成员加入" },
+  { q: "有实习或工作内推机会吗？", a: "目前没有，工作室还在积极寻找企业合作。" },
+  { q: "工作室有报酬吗？", a: "没有任何报酬，加入工作室主要还是提升自己，对找工作和考研保研都有很大的帮助。" },
 ];
 const insertFaq = db.prepare(
   `INSERT INTO faqs (question, answer, sort_order) VALUES (@q, @a, @sort_order)`

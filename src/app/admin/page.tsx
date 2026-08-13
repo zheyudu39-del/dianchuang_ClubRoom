@@ -5,18 +5,19 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import {
   LayoutDashboard, Users, Code2, Briefcase, FileText, Mail, BarChart3, PieChart,
-  Plus, Pencil, Trash2, X, RefreshCw,
+  Plus, Pencil, Trash2, X, RefreshCw, Trophy, Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type Tab =
   | "overview" | "applications" | "messages"
-  | "members" | "works" | "departments" | "stats" | "visits";
+  | "members" | "works" | "departments" | "stats" | "visits" | "honors";
 
 const tabs: { id: Tab; label: string; icon: any }[] = [
   { id: "overview", label: "总览", icon: LayoutDashboard },
   { id: "applications", label: "报名管理", icon: FileText },
   { id: "messages", label: "留言管理", icon: Mail },
+  { id: "honors", label: "荣誉管理", icon: Trophy },
   { id: "members", label: "成员管理", icon: Users },
   { id: "works", label: "作品管理", icon: Briefcase },
   { id: "departments", label: "部门管理", icon: PieChart },
@@ -44,6 +45,7 @@ export default function AdminPage() {
   const [departments, setDepartments] = useState<any[]>([]);
   const [stats, setStats] = useState<any[]>([]);
   const [visits, setVisits] = useState<any[]>([]);
+  const [honors, setHonors] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   const load = useCallback(async () => {
@@ -64,6 +66,7 @@ export default function AdminPage() {
     if (tab === "departments") setDepartments(await j("/api/departments"));
     if (tab === "stats") setStats(await j("/api/stats"));
     if (tab === "visits") setVisits(await j("/api/visits?days=14"));
+    if (tab === "honors") setHonors(await j("/api/honors"));
     setLoading(false);
   }, [tab]);
 
@@ -136,7 +139,8 @@ export default function AdminPage() {
         {tab === "applications" && (
           <ApplicationsTable rows={applications} onChange={async () => { await load(); }} act={act} />
         )}
-        {tab === "messages" && <MessagesTable rows={messages} />}
+        {tab === "messages" && <MessagesTable rows={messages} onChange={async () => { await load(); }} act={act} />}
+        {tab === "honors" && <HonorsManage rows={honors} onChange={async () => { await load(); }} act={act} />}
         {tab === "members" && (
           <MembersManage rows={members} departments={departments} onChange={load} act={act} />
         )}
@@ -186,95 +190,328 @@ function Overview({ overview }: { overview: any }) {
 
 /* ============ 报名管理 ============ */
 function ApplicationsTable({ rows, onChange, act }: any) {
+  const [viewing, setViewing] = useState<any>(null);
+  const [reply, setReply] = useState("");
+  const [replying, setReplying] = useState(false);
+  const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  const openDetail = (r: any) => {
+    setViewing(r);
+    setReply(r.adminReply || "");
+    setFeedback(null);
+  };
+
+  const submitReply = async () => {
+    if (!reply.trim() || !viewing) return;
+    setReplying(true);
+    try {
+      const res = await act("/api/applications", "PUT", { id: viewing.id, reply: reply.trim() });
+      if (res.ok) {
+        setFeedback({ ok: true, msg: "已回复 ✓ 用户可在前台「我的消息」查看" });
+        onChange();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setFeedback({ ok: false, msg: data.error || "回复失败" });
+      }
+    } catch {
+      setFeedback({ ok: false, msg: "网络错误" });
+    } finally {
+      setReplying(false);
+    }
+  };
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
-      <table className="w-full text-left text-sm min-w-[760px]">
-        <thead className="border-b border-zinc-200 text-xs uppercase tracking-wider text-zinc-400">
-          <tr>
-            <th className="px-4 py-3">#</th>
-            <th className="px-4 py-3">姓名</th>
-            <th className="px-4 py-3">学号</th>
-            <th className="px-4 py-3">邮箱</th>
-            <th className="px-4 py-3">手机</th>
-            <th className="px-4 py-3">年级/专业</th>
-            <th className="px-4 py-3">意向部门</th>
-            <th className="px-4 py-3">技能</th>
-            <th className="px-4 py-3">提交时间</th>
-            <th className="px-4 py-3">状态</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-100">
-          {rows.map((r: any) => (
-            <tr key={r.id} className="hover:bg-zinc-50/60">
-              <td className="px-4 py-3 text-zinc-400 font-mono text-xs">{r.id}</td>
-              <td className="px-4 py-3 font-medium text-zinc-900">{r.name}</td>
-              <td className="px-4 py-3 font-mono text-xs">{r.studentId}</td>
-              <td className="px-4 py-3 text-zinc-600">{r.email}</td>
-              <td className="px-4 py-3 text-zinc-600">{r.phone}</td>
-              <td className="px-4 py-3 text-zinc-600">{r.grade} {r.major}</td>
-              <td className="px-4 py-3 text-zinc-600">{r.department}</td>
-              <td className="px-4 py-3 text-zinc-500 text-xs max-w-[160px] truncate">{r.skills}</td>
-              <td className="px-4 py-3 text-zinc-400 text-xs whitespace-nowrap">{r.createdAt}</td>
-              <td className="px-4 py-3">
-                <select
-                  value={r.status}
-                  onChange={async (e) => {
-                    await act(`/api/applications?id=${r.id}`, "PATCH", { status: e.target.value });
-                    onChange();
-                  }}
-                  className={cn(
-                    "rounded-full px-2.5 py-1 text-xs border-0 cursor-pointer",
-                    statusMap[r.status]?.cls ?? "bg-zinc-100 text-zinc-600"
-                  )}
-                >
-                  <option value="pending">待处理</option>
-                  <option value="contacted">已联系</option>
-                  <option value="approved">已通过</option>
-                  <option value="rejected">未通过</option>
-                </select>
-              </td>
+    <>
+      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+        <table className="w-full text-left text-sm min-w-[860px]">
+          <thead className="border-b border-zinc-200 text-xs uppercase tracking-wider text-zinc-400">
+            <tr>
+              <th className="px-4 py-3">#</th>
+              <th className="px-4 py-3">姓名</th>
+              <th className="px-4 py-3">邮箱</th>
+              <th className="px-4 py-3">手机</th>
+              <th className="px-4 py-3">年级/专业</th>
+              <th className="px-4 py-3">意向部门</th>
+              <th className="px-4 py-3">提交时间</th>
+              <th className="px-4 py-3">状态</th>
+              <th className="px-4 py-3">回复</th>
+              <th className="px-4 py-3">操作</th>
             </tr>
-          ))}
-          {rows.length === 0 && (
-            <tr><td colSpan={10} className="px-4 py-12 text-center text-zinc-400">暂无报名数据</td></tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {rows.map((r: any) => (
+              <tr key={r.id} className="hover:bg-zinc-50/60">
+                <td className="px-4 py-3 text-zinc-400 font-mono text-xs">{r.id}</td>
+                <td className="px-4 py-3 font-medium text-zinc-900">{r.name}</td>
+                <td className="px-4 py-3 text-zinc-600">{r.email}</td>
+                <td className="px-4 py-3 text-zinc-600">{r.phone}</td>
+                <td className="px-4 py-3 text-zinc-600">{r.grade} {r.major}</td>
+                <td className="px-4 py-3 text-zinc-600">{r.department}</td>
+                <td className="px-4 py-3 text-zinc-400 text-xs whitespace-nowrap">{r.createdAt}</td>
+                <td className="px-4 py-3">
+                  <select
+                    value={r.status}
+                    onChange={async (e) => {
+                      await act(`/api/applications?id=${r.id}`, "PATCH", { status: e.target.value });
+                      onChange();
+                    }}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-xs border-0 cursor-pointer",
+                      statusMap[r.status]?.cls ?? "bg-zinc-100 text-zinc-600"
+                    )}
+                  >
+                    <option value="pending">待处理</option>
+                    <option value="contacted">已联系</option>
+                    <option value="approved">已通过</option>
+                    <option value="rejected">未通过</option>
+                  </select>
+                </td>
+                <td className="px-4 py-3">
+                  {r.adminReply ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-600">
+                      已回复
+                    </span>
+                  ) : (
+                    <span className="text-xs text-zinc-300">未回复</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => openDetail(r)}
+                    className="inline-flex items-center gap-1 rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition"
+                  >
+                    详情 / 回复
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr><td colSpan={10} className="px-4 py-12 text-center text-zinc-400">暂无报名数据</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {viewing && (
+        <ReplyModal title={`报名详情 #${viewing.id} · ${viewing.name}`} onClose={() => setViewing(null)}>
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+              <div><div className="text-xs text-zinc-400 mb-0.5">学号</div><div className="text-zinc-900 font-mono text-xs">{viewing.studentId}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">邮箱</div><div className="text-zinc-900 text-xs break-all">{viewing.email}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">手机</div><div className="text-zinc-900">{viewing.phone}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">年级 / 专业</div><div className="text-zinc-900">{viewing.grade} · {viewing.major}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">意向部门</div><div className="text-zinc-900">{viewing.department}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">提交时间</div><div className="text-zinc-900 text-xs">{viewing.createdAt}</div></div>
+            </div>
+            <div>
+              <div className="text-xs text-zinc-400 mb-1">技能</div>
+              <div className="text-sm text-zinc-900">{viewing.skills}</div>
+            </div>
+            <div>
+              <div className="text-xs text-zinc-400 mb-1">自我介绍</div>
+              <div className="text-sm text-zinc-900 leading-relaxed whitespace-pre-wrap rounded-lg bg-zinc-50 p-3">{viewing.selfIntro}</div>
+            </div>
+            {viewing.portfolio && (
+              <div>
+                <div className="text-xs text-zinc-400 mb-1">作品链接</div>
+                <a href={viewing.portfolio} target="_blank" rel="noreferrer" className="text-sm text-indigo-600 hover:underline break-all">{viewing.portfolio}</a>
+              </div>
+            )}
+            {viewing.experience && (
+              <div>
+                <div className="text-xs text-zinc-400 mb-1">相关经历</div>
+                <div className="text-sm text-zinc-900 leading-relaxed whitespace-pre-wrap">{viewing.experience}</div>
+              </div>
+            )}
+
+            <div className="border-t border-zinc-100 pt-4">
+              <div className="text-xs text-zinc-400 mb-1.5">管理员回复</div>
+              {viewing.adminReply ? (
+                <div className="text-sm text-zinc-900 leading-relaxed whitespace-pre-wrap rounded-lg bg-emerald-50 p-3 mb-3">
+                  {viewing.adminReply}
+                  <div className="mt-1.5 text-xs text-emerald-500">{viewing.repliedAt}</div>
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-400 mb-3">尚未回复</p>
+              )}
+              <textarea
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+                rows={4}
+                placeholder="输入回复内容,用户可在前台「我的消息」中查看…"
+                className="w-full rounded-lg border border-zinc-200 p-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              />
+              {feedback && (
+                <p className={cn("mt-2 text-xs", feedback.ok ? "text-emerald-600" : "text-red-500")}>
+                  {feedback.msg}
+                </p>
+              )}
+              <button
+                onClick={submitReply}
+                disabled={replying || !reply.trim()}
+                className="mt-3 inline-flex h-9 items-center rounded-full bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 transition disabled:opacity-50"
+              >
+                {replying ? "提交中..." : viewing.adminReply ? "更新回复" : "发送回复"}
+              </button>
+            </div>
+          </div>
+        </ReplyModal>
+      )}
+    </>
   );
 }
 
 /* ============ 留言管理 ============ */
-function MessagesTable({ rows }: { rows: any[] }) {
+function MessagesTable({ rows, onChange, act }: any) {
+  const [viewing, setViewing] = useState<any>(null);
+  const [reply, setReply] = useState("");
+  const [replying, setReplying] = useState(false);
+  const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  const openDetail = (m: any) => {
+    setViewing(m);
+    setReply(m.adminReply || "");
+    setFeedback(null);
+  };
+
+  const submitReply = async () => {
+    if (!reply.trim() || !viewing) return;
+    setReplying(true);
+    try {
+      const res = await act("/api/messages", "PUT", { id: viewing.id, reply: reply.trim() });
+      if (res.ok) {
+        setFeedback({ ok: true, msg: "已回复 ✓ 用户可在前台「我的消息」查看" });
+        onChange();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setFeedback({ ok: false, msg: data.error || "回复失败" });
+      }
+    } catch {
+      setFeedback({ ok: false, msg: "网络错误" });
+    } finally {
+      setReplying(false);
+    }
+  };
+
   return (
-    <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
-      <table className="w-full text-left text-sm min-w-[600px]">
-        <thead className="border-b border-zinc-200 text-xs uppercase tracking-wider text-zinc-400">
-          <tr>
-            <th className="px-4 py-3">#</th>
-            <th className="px-4 py-3">姓名</th>
-            <th className="px-4 py-3">邮箱</th>
-            <th className="px-4 py-3">话题</th>
-            <th className="px-4 py-3">内容</th>
-            <th className="px-4 py-3">时间</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-zinc-100">
-          {rows.map((m: any) => (
-            <tr key={m.id} className="hover:bg-zinc-50/60 align-top">
-              <td className="px-4 py-3 text-zinc-400 font-mono text-xs">{m.id}</td>
-              <td className="px-4 py-3 font-medium text-zinc-900 whitespace-nowrap">{m.name}</td>
-              <td className="px-4 py-3 text-zinc-600">{m.email}</td>
-              <td className="px-4 py-3 text-zinc-600 whitespace-nowrap">{m.topic}</td>
-              <td className="px-4 py-3 text-zinc-500 max-w-[320px]">{m.content}</td>
-              <td className="px-4 py-3 text-zinc-400 text-xs whitespace-nowrap">{m.created_at}</td>
+    <>
+      <div className="overflow-x-auto rounded-2xl border border-zinc-200 bg-white">
+        <table className="w-full text-left text-sm min-w-[760px]">
+          <thead className="border-b border-zinc-200 text-xs uppercase tracking-wider text-zinc-400">
+            <tr>
+              <th className="px-4 py-3">#</th>
+              <th className="px-4 py-3">姓名</th>
+              <th className="px-4 py-3">邮箱</th>
+              <th className="px-4 py-3">话题</th>
+              <th className="px-4 py-3">内容</th>
+              <th className="px-4 py-3">时间</th>
+              <th className="px-4 py-3">回复</th>
+              <th className="px-4 py-3">操作</th>
             </tr>
-          ))}
-          {rows.length === 0 && (
-            <tr><td colSpan={6} className="px-4 py-12 text-center text-zinc-400">暂无留言</td></tr>
-          )}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-zinc-100">
+            {rows.map((m: any) => (
+              <tr key={m.id} className="hover:bg-zinc-50/60 align-top">
+                <td className="px-4 py-3 text-zinc-400 font-mono text-xs">{m.id}</td>
+                <td className="px-4 py-3 font-medium text-zinc-900 whitespace-nowrap">{m.name}</td>
+                <td className="px-4 py-3 text-zinc-600">{m.email}</td>
+                <td className="px-4 py-3 text-zinc-600 whitespace-nowrap">{m.topic}</td>
+                <td className="px-4 py-3 text-zinc-500 max-w-[280px] truncate">{m.content}</td>
+                <td className="px-4 py-3 text-zinc-400 text-xs whitespace-nowrap">{m.createdAt}</td>
+                <td className="px-4 py-3">
+                  {m.adminReply ? (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-600">
+                      已回复
+                    </span>
+                  ) : (
+                    <span className="text-xs text-zinc-300">未回复</span>
+                  )}
+                </td>
+                <td className="px-4 py-3">
+                  <button
+                    onClick={() => openDetail(m)}
+                    className="inline-flex items-center gap-1 rounded-full border border-zinc-200 px-3 py-1 text-xs text-zinc-600 hover:border-zinc-900 hover:text-zinc-900 transition"
+                  >
+                    详情 / 回复
+                  </button>
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && (
+              <tr><td colSpan={8} className="px-4 py-12 text-center text-zinc-400">暂无留言</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {viewing && (
+        <ReplyModal title={`留言详情 #${viewing.id} · ${viewing.name}`} onClose={() => setViewing(null)}>
+          <div className="space-y-5">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+              <div><div className="text-xs text-zinc-400 mb-0.5">邮箱</div><div className="text-zinc-900 text-xs break-all">{viewing.email}</div></div>
+              <div><div className="text-xs text-zinc-400 mb-0.5">话题</div><div className="text-zinc-900">{viewing.topic}</div></div>
+            </div>
+            <div>
+              <div className="text-xs text-zinc-400 mb-1">留言内容</div>
+              <div className="text-sm text-zinc-900 leading-relaxed whitespace-pre-wrap rounded-lg bg-zinc-50 p-3">{viewing.content}</div>
+            </div>
+
+            <div className="border-t border-zinc-100 pt-4">
+              <div className="text-xs text-zinc-400 mb-1.5">管理员回复</div>
+              {viewing.adminReply ? (
+                <div className="text-sm text-zinc-900 leading-relaxed whitespace-pre-wrap rounded-lg bg-emerald-50 p-3 mb-3">
+                  {viewing.adminReply}
+                  <div className="mt-1.5 text-xs text-emerald-500">{viewing.repliedAt}</div>
+                </div>
+              ) : (
+                <p className="text-xs text-zinc-400 mb-3">尚未回复</p>
+              )}
+              <textarea
+                value={reply}
+                onChange={(e) => setReply(e.target.value)}
+                rows={4}
+                placeholder="输入回复内容,用户可在前台「我的消息」中查看…"
+                className="w-full rounded-lg border border-zinc-200 p-3 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20 transition"
+              />
+              {feedback && (
+                <p className={cn("mt-2 text-xs", feedback.ok ? "text-emerald-600" : "text-red-500")}>
+                  {feedback.msg}
+                </p>
+              )}
+              <button
+                onClick={submitReply}
+                disabled={replying || !reply.trim()}
+                className="mt-3 inline-flex h-9 items-center rounded-full bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 transition disabled:opacity-50"
+              >
+                {replying ? "提交中..." : viewing.adminReply ? "更新回复" : "发送回复"}
+              </button>
+            </div>
+          </div>
+        </ReplyModal>
+      )}
+    </>
+  );
+}
+
+/* ============ 通用弹窗 ============ */
+function ReplyModal({ title, onClose, children }: any) {
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-900/40"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg max-h-[85vh] overflow-y-auto rounded-2xl bg-white p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="text-lg font-bold text-zinc-900">{title}</h3>
+          <button onClick={onClose} className="p-1 text-zinc-400 hover:text-zinc-600 transition" aria-label="关闭">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+        {children}
+      </div>
     </div>
   );
 }
@@ -710,6 +947,203 @@ function Modal({ title, onClose, children }: { title: string; onClose: () => voi
           </button>
         </div>
         {children}
+      </div>
+    </div>
+  );
+}
+
+/* ============ 荣誉管理 ============ */
+function HonorsManage({ rows, onChange, act }: any) {
+  const [editing, setEditing] = useState<any>(null);
+  const [title, setTitle] = useState("");
+  const [year, setYear] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState("");
+  const [uploading, setUploading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ ok: boolean; msg: string } | null>(null);
+
+  const openCreate = () => {
+    setEditing(null);
+    setTitle("");
+    setYear("");
+    setDescription("");
+    setImage("");
+    setFeedback(null);
+  };
+
+  const openEdit = (h: any) => {
+    setEditing(h);
+    setTitle(h.title);
+    setYear(h.year || "");
+    setDescription(h.description || "");
+    setImage(h.image || "");
+    setFeedback(null);
+  };
+
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setFeedback(null);
+    try {
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/honors/upload", { method: "POST", body: fd });
+      const data = await res.json();
+      if (res.ok) {
+        setImage(data.url);
+        setFeedback({ ok: true, msg: "图片上传成功 ✓" });
+      } else {
+        setFeedback({ ok: false, msg: data.error || "上传失败" });
+      }
+    } catch {
+      setFeedback({ ok: false, msg: "上传失败，请重试" });
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
+  };
+
+  const submit = async () => {
+    if (!title.trim()) {
+      setFeedback({ ok: false, msg: "请填写奖项标题" });
+      return;
+    }
+    if (!image) {
+      setFeedback({ ok: false, msg: "请上传获奖图片" });
+      return;
+    }
+    setSaving(true);
+    setFeedback(null);
+    try {
+      const url = editing ? `/api/honors?id=${editing.id}` : "/api/honors";
+      const method = editing ? "PUT" : "POST";
+      const res = await act(url, method, { title: title.trim(), year: year.trim(), description: description.trim(), image });
+      if (res.ok) {
+        setFeedback({ ok: true, msg: editing ? "已更新 ✓" : "已添加 ✓" });
+        onChange();
+        if (!editing) openCreate();
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setFeedback({ ok: false, msg: data.error || "保存失败" });
+      }
+    } catch {
+      setFeedback({ ok: false, msg: "网络错误" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const remove = async (h: any) => {
+    if (!window.confirm(`确定删除「${h.title}」吗？`)) return;
+    const res = await act(`/api/honors?id=${h.id}`, "DELETE");
+    if (res.ok) onChange();
+  };
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-6">
+      {/* 表单 */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5 h-fit">
+        <h3 className="font-semibold text-zinc-900 mb-4">
+          {editing ? "编辑荣誉" : "新增荣誉"}
+        </h3>
+        <div className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1.5">获奖图片</label>
+            <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-zinc-200 bg-zinc-50 p-6 cursor-pointer hover:border-indigo-400 transition text-center">
+              {image ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={image} alt="预览" className="w-full max-h-40 object-contain rounded-lg" />
+              ) : (
+                <>
+                  <Upload className="w-6 h-6 text-zinc-400" />
+                  <span className="text-xs text-zinc-500">
+                    {uploading ? "上传中..." : "点击选择图片\nPNG / JPG / WEBP,≤ 8MB"}
+                  </span>
+                </>
+              )}
+              <input type="file" accept="image/*" onChange={onFile} className="hidden" />
+            </label>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1.5">奖项标题</label>
+            <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="如：互联网+ 省赛金奖" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1.5">年份</label>
+            <input className={inputCls} value={year} onChange={(e) => setYear(e.target.value)} placeholder="如：2024" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-zinc-700 mb-1.5">描述(可选)</label>
+            <textarea className={inputCls} rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="获奖项目/赛事说明…" />
+          </div>
+          {feedback && (
+            <p className={cn("text-sm", feedback.ok ? "text-emerald-600" : "text-red-500")}>
+              {feedback.ok ? "✓ " : "✗ "}{feedback.msg}
+            </p>
+          )}
+          <div className="flex gap-2">
+            <button
+              onClick={submit}
+              disabled={saving || uploading}
+              className="inline-flex h-9 flex-1 items-center justify-center rounded-full bg-indigo-600 px-5 text-sm font-medium text-white hover:bg-indigo-700 transition disabled:opacity-50"
+            >
+              {saving ? "保存中..." : editing ? "保存修改" : "添加到荣誉墙"}
+            </button>
+            {editing && (
+              <button
+                onClick={openCreate}
+                className="inline-flex h-9 items-center rounded-full border border-zinc-200 px-4 text-sm text-zinc-600 hover:border-zinc-900 transition"
+              >
+                取消
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* 列表 */}
+      <div className="rounded-2xl border border-zinc-200 bg-white p-5">
+        <h3 className="font-semibold text-zinc-900 mb-4">
+          已上传荣誉（{rows.length}）
+        </h3>
+        {rows.length === 0 ? (
+          <div className="py-16 text-center text-zinc-400 text-sm">还没有荣誉，先在左侧上传第一张获奖图片吧 🏆</div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {rows.map((h: any) => (
+              <div key={h.id} className="group rounded-xl border border-zinc-200 overflow-hidden hover:border-zinc-300 transition">
+                <div className="aspect-[4/3] bg-zinc-50 overflow-hidden">
+                  {h.image && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={h.image} alt={h.title} className="w-full h-full object-cover" />
+                  )}
+                </div>
+                <div className="p-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-sm font-medium text-zinc-900 truncate">{h.title}</p>
+                    {h.year && <span className="shrink-0 text-xs text-zinc-400">{h.year}</span>}
+                  </div>
+                  <div className="mt-2 flex gap-1.5">
+                    <button
+                      onClick={() => openEdit(h)}
+                      className="inline-flex items-center gap-1 rounded-full border border-zinc-200 px-2.5 py-1 text-xs text-zinc-600 hover:border-zinc-900 transition"
+                    >
+                      <Pencil className="w-3 h-3" /> 编辑
+                    </button>
+                    <button
+                      onClick={() => remove(h)}
+                      className="inline-flex items-center gap-1 rounded-full border border-red-100 px-2.5 py-1 text-xs text-red-500 hover:border-red-300 transition"
+                    >
+                      <Trash2 className="w-3 h-3" /> 删除
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
