@@ -19,7 +19,7 @@ export function HeroSection() {
           className="inline-flex items-center gap-2.5 rounded-full border border-zinc-200 bg-white px-4 py-1.5 text-xs text-zinc-500"
         >
           <span className="h-1.5 w-1.5 rounded-full bg-indigo-600" />
-          2026 春季纳新进行中 · 限额 20 人
+          2026 秋季纳新进行中 · 限额 3 人
         </motion.div>
 
         {/* 主标题 */}
