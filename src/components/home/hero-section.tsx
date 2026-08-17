@@ -41,7 +41,7 @@ export function HeroSection() {
           style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}
         >
           CREATE
-          <span className="block text-amber-300 my-1">THE FUTURE</span>
+          <span className="block text-violet-400 my-1">THE FUTURE</span>
           WITH CODE
         </motion.h1>
 
