@@ -6,7 +6,15 @@ import { ArrowRight } from "lucide-react";
 
 export function HeroSection() {
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden bg-amber-50">
+      {/* GIF 背景 */}
+      <div className="absolute inset-0 pointer-events-none">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/bg-hero.gif" alt="" className="w-full h-full object-cover object-center" />
+        {/* 暗色遮罩:保证文字可读 */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/45" />
+      </div>
+
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 md:pt-36 pb-20 text-center">
         {/* 徽章 */}
         <motion.div
@@ -25,12 +33,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="mt-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] text-white"
-          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.6)" }}
+          className="mt-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05]"
+          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
         >
-          CREATE
-          <span className="block text-amber-300 my-1">THE FUTURE</span>
-          WITH CODE
+          <span className="text-zinc-900">CREATE</span>
+          <span className="block text-amber-700 my-1">THE FUTURE</span>
+          <span className="text-zinc-900">WITH CODE</span>
         </motion.h1>
 
         {/* 副标题 */}
