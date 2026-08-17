@@ -8,11 +8,15 @@ export function HeroSection() {
   return (
     <section className="relative overflow-hidden bg-amber-50">
       {/* GIF 背景 */}
-      <div className="absolute inset-0 pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/bg-hero.gif" alt="" className="w-full h-full object-cover object-center" />
-        {/* 暗色遮罩:保证文字可读 */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/35 via-black/25 to-black/45" />
+        <img
+          src="/bg-hero.gif"
+          alt=""
+          className="w-full h-full object-cover object-top scale-150"
+        />
+        {/* 均匀淡遮罩:保证文字可读 */}
+        <div className="absolute inset-0 bg-black/15" />
       </div>
 
       <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 pt-28 md:pt-36 pb-20 text-center">

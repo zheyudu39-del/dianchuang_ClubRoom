@@ -53,7 +53,7 @@ export function Navbar({ user }: { user: SessionUser | null }) {
         className={cn(
           "fixed top-0 inset-x-0 z-50 transition-all duration-300",
           scrolled
-            ? "bg-white/85 backdrop-blur-md border-b border-zinc-200/80 shadow-[0_1px_0_0_rgba(0,0,0,0.02)]"
+            ? "bg-white border-b border-zinc-200 shadow-sm"
             : "bg-transparent"
         )}
       >
