@@ -19,13 +19,13 @@ export function DepartmentsSection({ departments }: { departments: Department[] 
           viewport={{ once: true }}
           className="text-center"
         >
-          <p className="text-xs font-medium uppercase tracking-[0.2em] text-indigo-600">
+          <p className="text-xs font-medium uppercase tracking-[0.2em] text-amber-300">
             Our Departments
           </p>
-          <h2 className="mt-3 text-3xl md:text-4xl font-bold tracking-tight text-zinc-900">
+          <h2 className="mt-3 text-3xl md:text-4xl font-bold tracking-tight text-white" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
             {departments.length} 大核心方向
           </h2>
-          <p className="mt-4 text-zinc-500 max-w-2xl mx-auto">
+          <p className="mt-4 text-zinc-300 max-w-2xl mx-auto">
             无论你擅长哪个方向，都能在这里找到属于你的位置
           </p>
         </motion.div>
@@ -41,18 +41,18 @@ export function DepartmentsSection({ departments }: { departments: Department[] 
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: i * 0.08 }}
-                className="group rounded-2xl border border-zinc-200 bg-white p-8 transition-all duration-300 hover:border-zinc-300 hover:shadow-[0_20px_48px_-24px_rgba(24,24,27,0.18)]"
+                className="group rounded-2xl border border-white/15 bg-white/10 backdrop-blur-md p-8 transition-all duration-300 hover:border-white/30 hover:bg-white/15"
               >
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 transition-colors group-hover:bg-indigo-600 group-hover:text-white">
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-amber-300 transition-colors group-hover:bg-amber-300 group-hover:text-zinc-900">
                   <Icon className="w-5 h-5" strokeWidth={1.75} />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold text-zinc-900">{dept.name}</h3>
-                <p className="mt-2 text-sm text-zinc-500 leading-relaxed">{dept.description}</p>
+                <h3 className="mt-5 text-lg font-semibold text-white">{dept.name}</h3>
+                <p className="mt-2 text-sm text-zinc-300 leading-relaxed">{dept.description}</p>
                 <div className="mt-5 flex flex-wrap gap-1.5">
                   {dept.skills.slice(0, 4).map((skill) => (
                     <span
                       key={skill}
-                      className="text-xs px-2.5 py-1 rounded-full bg-zinc-100 text-zinc-600"
+                      className="text-xs px-2.5 py-1 rounded-full bg-white/10 text-zinc-200"
                     >
                       {skill}
                     </span>

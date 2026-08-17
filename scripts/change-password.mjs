@@ -9,7 +9,6 @@
 // ============================================
 import Database from "better-sqlite3";
 import path from "path";
-import fs from "fs";
 import { fileURLToPath } from "url";
 import { randomBytes, scryptSync } from "crypto";
 

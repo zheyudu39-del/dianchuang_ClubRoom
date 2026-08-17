@@ -15,11 +15,11 @@ export function StatsSection({ stats }: { stats: Stat[] }) {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: i * 0.08 }}
           >
-            <div className="text-4xl md:text-5xl font-bold tracking-tight text-zinc-900 tabular-nums">
+            <div className="text-4xl md:text-5xl font-bold tracking-tight text-white tabular-nums" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.5)" }}>
               {stat.value.toLocaleString()}
-              <span className="text-indigo-600">{stat.suffix}</span>
+              <span className="text-amber-300">{stat.suffix}</span>
             </div>
-            <div className="mt-2.5 text-sm text-zinc-500">{stat.label}</div>
+            <div className="mt-2.5 text-sm text-zinc-300">{stat.label}</div>
           </motion.div>
         ))}
       </div>
