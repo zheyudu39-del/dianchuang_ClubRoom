@@ -25,7 +25,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="inline-flex items-center gap-2.5 rounded-full border border-white/40 bg-white/10 backdrop-blur-md px-4 py-1.5 text-xs text-white"
+          className="inline-flex items-center gap-2.5 rounded-full border border-white/30 bg-black/30 backdrop-blur-md px-4 py-1.5 text-xs text-white"
           style={{ textShadow: "0 1px 2px rgba(0,0,0,0.5)" }}
         >
           <span className="h-1.5 w-1.5 rounded-full bg-amber-300" />
@@ -37,12 +37,12 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.1 }}
-          className="mt-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05]"
-          style={{ textShadow: "0 2px 12px rgba(0,0,0,0.5)" }}
+          className="mt-10 text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tight leading-[1.05] text-white"
+          style={{ textShadow: "0 2px 16px rgba(0,0,0,0.7)" }}
         >
-          <span className="text-zinc-900">CREATE</span>
-          <span className="block text-amber-700 my-1">THE FUTURE</span>
-          <span className="text-zinc-900">WITH CODE</span>
+          CREATE
+          <span className="block text-amber-300 my-1">THE FUTURE</span>
+          WITH CODE
         </motion.h1>
 
         {/* 副标题 */}
