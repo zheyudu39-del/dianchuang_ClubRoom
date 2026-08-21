@@ -11,8 +11,9 @@ const workSchema = z.object({
   description: z.string().min(2, "描述至少 2 个字符"),
   techStack: z.array(z.string()).min(1, "至少一个技术栈"),
   category: z.string().min(1, "请选择分类"),
-  githubUrl: z.string().default("#"),
-  demoUrl: z.string().default("#"),
+  githubUrl: z.string().default(""),
+  demoUrl: z.string().default(""),
+  order: z.number().int().default(0),
 });
 
 export async function GET(req: NextRequest) {

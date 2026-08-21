@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Code2 as Github, Mail, MessageCircle, Sparkles } from "lucide-react";
+import { Code2 as Github, Mail, MessageCircle, Sparkles, ShieldCheck } from "lucide-react";
 
 export function Footer() {
   return (
@@ -68,11 +68,25 @@ export function Footer() {
         </div>
 
         <div className="mt-12 pt-8 border-t border-zinc-200 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
-          <p className="flex items-center gap-3">
-            © 2026 典创 Studio. All rights reserved.
-            <span className="text-zinc-300">·</span>
-            <Link href="/admin" className="hover:text-zinc-700 transition">管理后台</Link>
-          </p>
+          <div className="flex flex-col items-center sm:items-start gap-2">
+            <p className="flex items-center gap-3">
+              © 2026 典创 Studio. All rights reserved.
+              <span className="text-zinc-300">·</span>
+              <Link href="/admin" className="hover:text-zinc-700 transition">管理后台</Link>
+            </p>
+            <p className="flex items-center gap-3">
+              <a
+                href="https://beian.miit.gov.cn/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-zinc-600 transition flex items-center gap-1.5"
+                aria-label="工业和信息化部 ICP/IP 地址/域名信息备案管理系统"
+              >
+                <ShieldCheck className="w-3 h-3" />
+                赣ICP备2026019922号-1
+              </a>
+            </p>
+          </div>
           <p className="flex items-center gap-1.5">
             Built with <Sparkles className="w-3 h-3 text-indigo-600" /> by 典创 Team
           </p>

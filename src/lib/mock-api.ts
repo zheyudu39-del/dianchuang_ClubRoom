@@ -55,6 +55,7 @@ export function getMockWorks(): Work[] {
     demoUrl: w.demoUrl,
     teamMembers: [...w.teamMembers],
     isPublished: w.isPublished,
+    order: (w as any).order ?? 0,
     createdAt: "",
   }));
 }

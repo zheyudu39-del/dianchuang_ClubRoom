@@ -61,7 +61,11 @@ export default function AdminPage() {
     if (tab === "overview") setOverview(await j("/api/admin/overview"));
     if (tab === "applications") setApplications(await j("/api/applications"));
     if (tab === "messages") setMessages(await j("/api/messages"));
-    if (tab === "members") setMembers(await j("/api/members"));
+    if (tab === "members") {
+      const [m, d] = await Promise.all([j("/api/members"), j("/api/departments")]);
+      setMembers(m);
+      setDepartments(d);
+    }
     if (tab === "works") setWorks(await j("/api/works"));
     if (tab === "departments") setDepartments(await j("/api/departments"));
     if (tab === "stats") setStats(await j("/api/stats"));
@@ -522,15 +526,19 @@ function MembersManage({ rows, departments, onChange, act }: any) {
   const [form, setForm] = useState<any>({ skills: "" });
 
   const openNew = () => {
-    setForm({ name: "", role: "MEMBER", department: departments[0]?.id ?? "", position: "", bio: "", skills: "", github: "" });
+    setForm({ name: "", role: "MEMBER", department: departments[0]?.id ?? "", position: "", bio: "", skills: "", github: "", avatar: "", order: departments.length + 1 });
     setEditing({ id: null });
   };
   const openEdit = (m: any) => {
-    setForm({ ...m, skills: m.skills.join(", ") });
+    setForm({ ...m, skills: m.skills.join(", "), order: m.sortOrder ?? m.order ?? 0 });
     setEditing({ id: m.id });
   };
   const save = async () => {
-    const payload = { ...form, skills: form.skills.split(",").map((s: string) => s.trim()).filter(Boolean) };
+    const payload = {
+      ...form,
+      skills: form.skills.split(",").map((s: string) => s.trim()).filter(Boolean),
+      order: Number(form.order) || 0,
+    };
     const url = editing.id ? `/api/members?id=${editing.id}` : "/api/members";
     const res = await act(url, editing.id ? "PUT" : "POST", payload);
     if (res.ok) { setEditing(null); onChange(); }
@@ -604,6 +612,9 @@ function MembersManage({ rows, departments, onChange, act }: any) {
             </Field>
             <Field label="职位"><input className={inputCls} value={form.position} onChange={(e) => setForm({ ...form, position: e.target.value })} /></Field>
             <Field label="技能(逗号分隔)" span><input className={inputCls} value={form.skills} onChange={(e) => setForm({ ...form, skills: e.target.value })} /></Field>
+            <Field label="头像 URL"><input className={inputCls} value={form.avatar || ""} onChange={(e) => setForm({ ...form, avatar: e.target.value })} placeholder="如 /avatars/1.svg" /></Field>
+            <Field label="GitHub"><input className={inputCls} value={form.github || ""} onChange={(e) => setForm({ ...form, github: e.target.value })} /></Field>
+            <Field label="排序"><input className={inputCls} type="number" value={form.order || ""} onChange={(e) => setForm({ ...form, order: e.target.value })} placeholder="数字越小越靠前" /></Field>
             <Field label="简介" span><textarea rows={3} className={inputCls} value={form.bio} onChange={(e) => setForm({ ...form, bio: e.target.value })} /></Field>
           </div>
           <div className="mt-6 flex justify-end gap-2">
@@ -720,15 +731,19 @@ function DepartmentsManage({ rows, onChange, act }: any) {
     setForm({ id: "", name: "", icon: "Code2", description: "", skills: "" });
     setEditing({ id: null });
   };
-  const openEdit = (d: any) => {
-    setForm({ ...d, skills: d.skills.join(", ") });
-    setEditing({ id: d.id });
-  };
   const save = async () => {
+    if (!form.id.trim()) {
+      alert("部门 id 不能为空");
+      return;
+    }
     const payload = { ...form, skills: form.skills.split(",").map((s: string) => s.trim()).filter(Boolean) };
     const url = editing.id ? `/api/departments?id=${editing.id}` : "/api/departments";
     const res = await act(url, editing.id ? "PUT" : "POST", payload);
     if (res.ok) { setEditing(null); onChange(); }
+  };
+  const openEdit = (d: any) => {
+    setForm({ ...d, skills: d.skills.join(", ") });
+    setEditing({ id: d.id });
   };
   const remove = async (id: string) => {
     if (!confirm("确认删除该部门？")) return;

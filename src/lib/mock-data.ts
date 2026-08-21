@@ -221,7 +221,8 @@ export const works = [
       "1",
       "4"
     ],
-    "isPublished": true
+    "isPublished": true,
+    "order": 1
   },
   {
     "id": "2",
@@ -241,7 +242,8 @@ export const works = [
       "2",
       "7"
     ],
-    "isPublished": true
+    "isPublished": true,
+    "order": 2
   },
   {
     "id": "3",
@@ -259,7 +261,8 @@ export const works = [
     "teamMembers": [
       "5"
     ],
-    "isPublished": true
+    "isPublished": true,
+    "order": 3
   },
   {
     "id": "4",
